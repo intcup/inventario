@@ -1,0 +1,32 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: php:8.2-apache    #check the php version you need for your project
+    ports:
+      - "80:80"    #this line maps your pc port to the container port
+    depends_on:
+      - db    #this line links this container to the db container
+    develop:
+      watch:
+        - action: sync
+          path: ./html
+          target: /app
+  db:
+    image: mariadb    #check the mysql version you need for your project
+    environment:
+      MARIADB_ROOT_PASSWORD: root #you can change the mysql root password here
+      MARIADB_DATABASE: inventario    #you can change the database name here
+    volumes:
+      - ./db.sql:/docker-entrypoint-initdb.d/db.sql:z
+    ports:
+      - "3306:3306"
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8080:80"    #this line maps your pc port to the container port
+    depends_on:
+      - db    #this line links this container to the db container
+    environment:
+      PMA_HOST: db
